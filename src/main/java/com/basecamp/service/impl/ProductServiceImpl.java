@@ -2,6 +2,7 @@ package com.basecamp.service.impl;
 
 import com.basecamp.exception.InternalException;
 import com.basecamp.exception.InvalidDataException;
+import com.basecamp.exception.InvalidStatusException;
 import com.basecamp.service.ProductService;
 import com.basecamp.wire.GetHandleProductIdsResponse;
 import com.basecamp.wire.GetProductInfoResponse;
@@ -116,12 +117,24 @@ public class ProductServiceImpl implements ProductService {
         for (String position : handledTasks) {
             if (position.indexOf("wins") != -1){
                 status = position;
+                //status = "null"; //for exception
                 taskService.stopExecutorService();
             }
         }
 
+        //Custom exception
+        validateStatus(status);
+
         return GetRaceStatusResponse.builder()
                 .status(status)
                 .build();
+    }
+
+    private void validateStatus(String status){
+        if(status.equals("null")){
+            String msg = "Status is null.";
+            log.error(msg);
+            throw new InvalidStatusException(msg);
+        }
     }
 }
